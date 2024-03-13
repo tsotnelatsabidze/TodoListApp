@@ -1,0 +1,280 @@
+@model TodoListApp.WebApi.Models.Models.TodoTaskDto
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<div class="container">
+
+    <h2>Todo Task Edit</h2>
+
+    @using (Html.BeginForm("Edit", "TodoTask", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-horizontal">
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.TodoListId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.TodoListId, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.TodoListId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.AssignedUserId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.HiddenFor(model => model.AssignedUserId)
+                    @Html.ValidationMessageFor(model => model.AssignedUserId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.DueDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.DueDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.DueDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.Status, new SelectList(
+                new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Not Started", Value = "0" },
+                new SelectListItem { Text = "In Progress", Value = "1" },
+                new SelectListItem { Text = "Completed", Value = "2" }
+                }, "Value", "Text"),
+                htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <input type="text" id="Tags" name="Tags" class="form-control" data-role="tagsinput" hidden />
+            <!-- Display tags as a list -->
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.Tags, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div id="tagList" class="d-flex flex-wrap">
+                        @if(Model.Tags != null)
+                        {
+                            @foreach (var tag in Model.Tags)
+                            {
+                                <div class="tag-item me-2 mb-2" data-tag="@tag.Name">
+                                    <span class="tag-text">@tag.Name</span>
+                                    <button type="button" class="btn btn-danger btn-sm removeTagBtn">
+                                        <span class="btn-icon">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <button type="button" id="addTagBtn" class="btn btn-primary">Add Tag</button>
+                    @Html.ValidationMessageFor(model => model.Tags, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <!-- Display comments as a list -->
+            <div class="form-group mb-3">
+                @Html.LabelFor(model => model.Comments, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <ul id="commentList" class="list-group">
+                        @if(Model.Comments != null)
+                        {
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <li class="list-group-item comment" data-comment="@comment.Id">
+                                    <div class="comment-content">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="comment-text">@comment.Text</span>
+                                            <button type="button" class="btn btn-danger btn-sm removeCommentBtn">
+                                                <span class="btn-icon">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="comment-metadata">
+                                            <span class="comment-info">Created by: @comment.Creator</span>
+                                            <span class="comment-info">Date: @comment.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <button type="button" id="addCommentBtn" class="btn btn-primary mt-2">Add Comment</button>
+                    @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+
+
+
+
+            <div class="form-group mb-3">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    @Html.ActionLink("Details", "Details", new { id = Model.Id }, htmlAttributes: new { @class = "btn btn-sm btn-info" })
+                    @Html.ActionLink("Delete", "Delete", new { id = Model.Id }, htmlAttributes: new { @class = "btn btn-sm btn-warning" })
+
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class=" mb-3">
+        @Html.ActionLink("Back to List", "TodoTasks", "TodoList", new {Id = Model.TodoListId}, htmlAttributes: new { @class = "btn btn-info" })
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Optional: Add event listeners to handle changes
+
+            // Add new tag button click event
+            $('#addTagBtn').on('click', function () {
+                var newTag = prompt("Enter a new tag:");
+                if (newTag) {
+                    addTag(newTag);
+                }
+            });
+
+            // Remove tag button click event
+            $(document).on('click', '.removeTagBtn', function () {
+                if (confirm("Are you sure you want to remove this tag?")) {
+                    var $tagContainer = $(this).closest('.tag-item');
+                    var tagToRemove = $tagContainer.data('tag');
+
+                    removeTag(tagToRemove, $tagContainer);
+                }
+            });
+
+            // Add new comment button click event
+            $('#addCommentBtn').on('click', function () {
+                var newComment = prompt("Enter a new comment:");
+                if (newComment) {
+                    addComment(newComment);
+                }
+            });
+
+            // Remove comment button click event
+            $(document).on('click', '.removeCommentBtn', function () {
+                if (confirm("Are you sure you want to remove this comment?")) {
+                    var commentIdToRemove = $(this).closest('.comment').data('comment');
+                    removeComment(commentIdToRemove);
+                }
+            });
+
+
+
+
+
+            // Function to add a tag
+            function addTag(tag) {
+                var todoTaskId = @Model.Id;
+                $.ajax({
+                    url: '/TodoTask/AddTag',
+                    type: 'POST',
+                    data: { todoTaskId: todoTaskId, tag: tag },
+                    success: function () {
+                        // Create the new tag element with the correct structure and styling
+                        var $newTag = $('<div class="tag-item me-2 mb-2" data-tag="' + tag + '">' +
+                            '<span class="tag-text">' + tag + '</span>' +
+                            '<button type="button" class="btn btn-danger btn-sm removeTagBtn">' +
+                            '<span class="btn-icon">&times;</span>' +
+                            '</button>' +
+                            '</div>');
+
+                        // Append the new tag element to the tag list
+                        $('#tagList').append($newTag);
+                    },
+                    error: function () {
+                        alert('Failed to add the tag.');
+                    }
+                });
+            }
+
+
+            // Function to remove a tag
+            function removeTag(tag, $tagContainer) {
+                var todoTaskId = @Model.Id;
+                $.ajax({
+                    url: '/TodoTask/RemoveTag',
+                    type: 'POST',
+                    data: { todoTaskId: todoTaskId, tag: tag },
+                    success: function () {
+                        // Remove the tag element from the UI
+                        $tagContainer.remove();
+                    },
+                    error: function () {
+                        alert('Failed to remove the tag.');
+                    }
+                });
+            }
+
+            // Function to add a comment
+            function addComment(comment) {
+                var todoTaskId = @Model.Id;
+                $.ajax({
+                    url: '/TodoTask/AddComment',
+                    type: 'POST',
+                    data: { todoTaskId: todoTaskId, comment: comment },
+                    success: function (newComment) {
+                        console.log(newComment);
+                        // Create the new comment element with the correct structure and details
+                        var $newComment = $('<li class="list-group-item comment" data-comment="' + newComment.id + '">' +
+                            '<div class="comment-content">' +
+                            '<div class="d-flex justify-content-between align-items-center">' +
+                            '<span class="comment-text">' + newComment.text + '</span>' +
+                            '<button type="button" class="btn btn-danger btn-sm removeCommentBtn">' +
+                            '<span class="btn-icon">&times;</span>' +
+                            '</button>' +
+                            '</div>' +
+                            '<div class="comment-metadata">' +
+                            '<span class="comment-info">Created by: ' + newComment.creator + '</span>' +
+                            '<span class="comment-info">Date: ' + newComment.createDate + '</span>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>');
+
+                        // Append the new comment element to the comment list
+                        $('#commentList').append($newComment);
+                    },
+                    error: function () {
+                        alert('Failed to add the comment.');
+                    }
+                });
+            }
+
+            // Function to remove a comment
+            function removeComment(commentId) {
+                var todoTaskId = @Model.Id;
+                $.ajax({
+                    url: '/TodoTask/RemoveComment',
+                    type: 'POST',
+                    data: { todoTaskId: todoTaskId, commentId: commentId },
+                    success: function () {
+                        $('#commentList').find('[data-comment="' + commentId + '"]').remove();
+                    },
+                    error: function () {
+                        alert('Failed to remove the comment.');
+                    }
+                });
+            }
+        });
+    </script>
+}
